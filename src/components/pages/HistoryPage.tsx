@@ -37,8 +37,8 @@ function EditTransactionDialog({ open, onClose, transaction, categories, onSave 
       amount,
       description,
       date,
-      sourceAccountId: transaction.sourceAccountId,
-      destAccountId: transaction.destAccountId,
+      sourceAccountId: transaction.sourceAccountId ?? null,
+      destAccountId: transaction.destAccountId ?? null,
       createdAt: transaction.createdAt,
     });
   };
