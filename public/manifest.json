@@ -1,7 +1,7 @@
 {
-    "name": "Manajemen Keuangan",
-    "short_name": "Keuangan",
-    "description": "Aplikasi manajemen keuangan sederhana",
+    "name": "Financial Fast",
+    "short_name": "FinFast",
+    "description": "Aplikasi manajemen keuangan mudah dan cepat",
     "start_url": "/",
     "display": "standalone",
     "background_color": "#ffffff",
