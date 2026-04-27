@@ -8,13 +8,13 @@ import ServiceWorkerRegistration from '@/components/ServiceWorkerRegistration';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: "FinFast",
+  title: "FinFast - Manajemen Keuangan Cepat dengan AI",
   description: "Aplikasi manajemen keuangan sederhana",
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
-    title: "FinFast",
+    title: "FinFast - Manajemen Keuangan Cepat dengan AI",
   },
   icons: {
     icon: "/icon-192.png",

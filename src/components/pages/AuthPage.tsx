@@ -1,8 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import Image from 'next/image';
 import { Box, Card, CardContent, Typography, TextField, Button, Stack, Alert, Tab, Tabs } from '@mui/material';
+import { Icon } from '@iconify/react';
 import { loginWithEmail, registerWithEmail } from '@/lib/auth';
 import { writeData } from '@/lib/database';
 import { updateProfile } from 'firebase/auth';
@@ -52,13 +52,14 @@ export default function AuthPage() {
 
 
     return (
-        <Box sx={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', background: 'linear-gradient(135deg, #1a237e 0%, #1976d2 60%, #42a5f5 100%)' }}>
+        <Box sx={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', background: 'linear-gradient(135deg, #2563eb 0%, #60a5fa 50%, #93c5fd 100%)' }}>
             {/* Header */}
             <Box sx={{ p: 4, pt: 8, textAlign: 'center', color: 'white' }}>
-                <Box sx={{ display: 'flex', justifyContent: 'center', mb: 2 }}>
-                    <Image src="/icon-512.png" alt="FinFast" width={100} height={100} style={{ borderRadius: 24 }} />
+                <Box sx={{ width: 72, height: 72, borderRadius: 4, bgcolor: 'rgba(255,255,255,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', mx: 'auto', mb: 2, backdropFilter: 'blur(10px)' }}>
+                    <Icon icon="mdi:wallet-outline" width={40} />
                 </Box>
-                <Typography variant="body2" sx={{ opacity: 0.9, mt: 1 }}>Kelola Keuangan Anda dengan Mudah dan Cepat</Typography>
+                <Typography variant="h4" fontWeight={700}>FinFast</Typography>
+                <Typography variant="body2" sx={{ opacity: 0.9, mt: 1 }}>Kelola keuangan Anda dengan mudah dengan AI</Typography>
             </Box>
 
             {/* Auth Card */}
