@@ -22,19 +22,12 @@ export default function InstallPrompt() {
     const [isMounted, setIsMounted] = useState(false);
 
     useEffect(() => {
-        // Mark as mounted (client-side only)
         setIsMounted(true);
 
-        // Check if already installed (standalone mode)
-        const checkStandalone = window.matchMedia('(display-mode: standalone)').matches
+        // Don't show if already installed (standalone mode)
+        const isStandalone = window.matchMedia('(display-mode: standalone)').matches
             || (window.navigator as any).standalone === true;
-
-        // Don't show anything if already installed
-        if (checkStandalone) return;
-
-        // Check if mobile device
-        const isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
-            || window.innerWidth <= 768;
+        if (isStandalone) return;
 
         // Check if iOS
         const isIOSDevice = /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as any).MSStream;
@@ -44,43 +37,33 @@ export default function InstallPrompt() {
         const dismissedAt = localStorage.getItem('pwa-install-dismissed');
         if (dismissedAt) {
             const dismissedTime = parseInt(dismissedAt, 10);
-            const threeDays = 3 * 24 * 60 * 60 * 1000;
-            if (Date.now() - dismissedTime < threeDays) {
-                return; // Don't show if dismissed within 3 days
-            }
+            if (Date.now() - dismissedTime < 3 * 24 * 60 * 60 * 1000) return;
         }
 
-        // Listen for beforeinstallprompt event (Chrome, Edge, etc.)
+        // Listen for native install prompt (Chrome, Edge, Samsung Browser, etc.)
         const handleBeforeInstallPrompt = (e: BeforeInstallPromptEvent) => {
             e.preventDefault();
             setDeferredPrompt(e);
             setShowPrompt(true);
-            console.log('beforeinstallprompt event fired!');
+        };
+
+        // Hide prompt when app is installed
+        const handleAppInstalled = () => {
+            setShowPrompt(false);
+            setDeferredPrompt(null);
         };
 
         window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+        window.addEventListener('appinstalled', handleAppInstalled);
 
-        // For iOS, show custom prompt immediately
+        // For iOS: show manual install instructions
         if (isIOSDevice) {
             setShowPrompt(true);
-            return () => {
-                window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
-            };
-        }
-
-        // For Android/other mobile: show prompt after delay
-        if (isMobileDevice && !isIOSDevice) {
-            const timer = setTimeout(() => {
-                setShowPrompt(true);
-            }, 2000);
-            return () => {
-                clearTimeout(timer);
-                window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
-            };
         }
 
         return () => {
             window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+            window.removeEventListener('appinstalled', handleAppInstalled);
         };
     }, []);
 
@@ -157,13 +140,9 @@ export default function InstallPrompt() {
                             <Typography variant="caption" sx={{ opacity: 0.9, display: 'block', lineHeight: 1.4 }}>
                                 Ketuk <Icon icon="mdi:export-variant" width={14} style={{ verticalAlign: 'middle' }} /> lalu pilih {'"'}Add to Home Screen{'"'}
                             </Typography>
-                        ) : deferredPrompt ? (
+                        ) : (
                             <Typography variant="caption" sx={{ opacity: 0.9 }}>
                                 Akses lebih cepat langsung dari layar utama
-                            </Typography>
-                        ) : (
-                            <Typography variant="caption" sx={{ opacity: 0.9, display: 'block', lineHeight: 1.4 }}>
-                                Ketuk menu <Icon icon="mdi:dots-vertical" width={14} style={{ verticalAlign: 'middle' }} /> lalu pilih {'"'}Install app{'"'}
                             </Typography>
                         )}
                     </Box>
