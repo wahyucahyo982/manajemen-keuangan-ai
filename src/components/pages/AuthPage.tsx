@@ -58,8 +58,10 @@ export default function AuthPage() {
                 <Box sx={{ width: 72, height: 72, borderRadius: 4, bgcolor: 'rgba(255,255,255,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', mx: 'auto', mb: 2, backdropFilter: 'blur(10px)' }}>
                     <Icon icon="mdi:wallet-outline" width={40} />
                 </Box>
-                <Typography variant="h4" fontWeight={700}>FinFast</Typography>
-                <Typography variant="body2" sx={{ opacity: 0.9, mt: 1 }}>Kelola keuangan Anda dengan mudah dengan AI</Typography>
+                <Typography variant="h4" fontWeight={700} fontStyle="italic" sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    FinFa<Icon icon="mdi:lightning-bolt" width={28} style={{ marginBottom: 2, marginLeft: -2, marginRight: -6, transform: 'rotate(20deg)' }} />t
+                </Typography>
+                <Typography variant="body2" sx={{ opacity: 0.9, mt: 1 }}>Kelola keuangan Anda dengan mudah dan cepat</Typography>
             </Box>
 
             {/* Auth Card */}
