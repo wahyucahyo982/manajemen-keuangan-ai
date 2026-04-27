@@ -1,6 +1,6 @@
 {
     "name": "Manajemen Keuangan",
-    "short_name": "Keuangan",
+    "short_name": "FinFast",
     "description": "Aplikasi manajemen keuangan sederhana",
     "start_url": "/",
     "display": "standalone",
