@@ -251,7 +251,7 @@ export default function AIInputPage() {
   return (
     <Box sx={{ pb: 12 }}>
       {/* Header */}
-      <Box sx={{ background: 'linear-gradient(135deg, #2563eb 0%, #60a5fa 50%, #93c5fd 100%)', color: 'white', p: 3, borderRadius: '0 0 32px 32px', position: 'relative', overflow: 'hidden' }}>
+      <Box sx={{ background: 'linear-gradient(135deg, #6366f1 0%, #818cf8 50%, #a5b4fc 100%)', color: 'white', p: 3, borderRadius: '0 0 32px 32px', position: 'relative', overflow: 'hidden' }}>
         <Stack direction="row" alignItems="center" spacing={1.5}>
           <Box sx={{ width: 44, height: 44, borderRadius: 3, bgcolor: 'rgba(255,255,255,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <Icon icon="mdi:robot" width={24} />
