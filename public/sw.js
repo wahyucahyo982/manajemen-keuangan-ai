@@ -1,4 +1,4 @@
-const CACHE_NAME = 'manajemen-keuangan-v1';
+const CACHE_NAME = 'financial-fast-v1';
 const urlsToCache = [
     '/',
     '/manifest.json'

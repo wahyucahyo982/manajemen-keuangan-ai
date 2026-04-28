@@ -17,8 +17,8 @@ export const metadata: Metadata = {
     title: "FinFast",
   },
   icons: {
-    icon: "/icon-192.png",
-    apple: "/apple-touch-icon.png",
+    icon: "/icon-finfast.png",
+    apple: "/icon-finfast.png",
   },
 };
 
