@@ -26,6 +26,41 @@ export default function AIInputPage() {
   const [saving, setSaving] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  // Voice note states
+  const [isListening, setIsListening] = useState(false);
+  const recognitionRef = useRef<any>(null);
+
+  const handleVoiceStart = () => {
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+      setError('Browser tidak mendukung fitur voice note. Gunakan Chrome atau Edge.');
+      return;
+    }
+    const recognition = new SpeechRecognition();
+    recognition.lang = 'id-ID';
+    recognition.continuous = false;
+    recognition.interimResults = false;
+
+    recognition.onstart = () => setIsListening(true);
+    recognition.onend = () => setIsListening(false);
+    recognition.onerror = (e: any) => {
+      setIsListening(false);
+      if (e.error !== 'no-speech') setError('Gagal merekam suara: ' + e.error);
+    };
+    recognition.onresult = (e: any) => {
+      const transcript = e.results[0][0].transcript;
+      setPrompt(prev => prev ? prev + ' ' + transcript : transcript);
+    };
+
+    recognitionRef.current = recognition;
+    recognition.start();
+  };
+
+  const handleVoiceStop = () => {
+    recognitionRef.current?.stop();
+    setIsListening(false);
+  };
+
   const [categories, setCategories] = useState<string[]>([]);
   const [accounts, setAccounts] = useState<Account[]>([]);
 
@@ -270,6 +305,24 @@ export default function AIInputPage() {
           <CardContent sx={{ p: 2.5 }}>
             <Stack spacing={2.5}>
               <TextField label="Contoh: Bayar listrik 500ribu dari BCA hari ini" multiline rows={3} fullWidth value={prompt} onChange={(e) => setPrompt(e.target.value)} placeholder="Ketik transaksi Anda..." sx={{ '& .MuiOutlinedInput-root': { bgcolor: '#f8fafc' } }} />
+
+              {/* Voice Note */}
+              <Stack direction="row" spacing={1.5} alignItems="center">
+                <Button
+                  variant={isListening ? 'contained' : 'outlined'}
+                  onClick={isListening ? handleVoiceStop : handleVoiceStart}
+                  startIcon={<Icon icon={isListening ? 'mdi:stop-circle' : 'mdi:microphone'} />}
+                  color={isListening ? 'error' : 'primary'}
+                  sx={{ borderRadius: 3, flex: 1, py: 1.2, fontWeight: 600, ...(isListening && { animation: 'pulse 1.5s infinite' }) }}
+                >
+                  {isListening ? 'Berhenti Merekam...' : 'Voice Note'}
+                </Button>
+                {prompt && (
+                  <IconButton size="small" onClick={() => setPrompt('')} sx={{ bgcolor: 'rgba(239,68,68,0.1)', borderRadius: 2 }}>
+                    <Icon icon="mdi:close" width={18} color="#ef4444" />
+                  </IconButton>
+                )}
+              </Stack>
 
               {/* Image Upload */}
               <Box>
