@@ -314,6 +314,11 @@ export default function HomePage({ onNavigate }: HomePageProps) {
                   color: '#2563eb',
                 },
               },
+              '& .MuiTab-iconWrapper': {
+                flexShrink: 0,
+                display: 'flex',
+                alignItems: 'center',
+              },
               '& .MuiTabs-indicator': {
                 height: 3,
                 borderRadius: '3px 3px 0 0',
@@ -322,19 +327,19 @@ export default function HomePage({ onNavigate }: HomePageProps) {
             }}
           >
             <Tab
-              icon={<Icon icon="mdi:wallet-bifold-outline" width={20} />}
+              icon={<Icon icon="mdi:wallet-bifold-outline" width={22} />}
               iconPosition="start"
               label="Budgeting"
               sx={{ gap: 0.5 }}
             />
             <Tab
-              icon={<Icon icon="mdi:chart-line" width={20} />}
+              icon={<Icon icon="mdi:chart-line" width={22} />}
               iconPosition="start"
               label="Statistik"
               sx={{ gap: 0.5 }}
             />
             <Tab
-              icon={<Icon icon="mdi:piggy-bank-outline" width={20} />}
+              icon={<Icon icon="mdi:piggy-bank-outline" width={22} />}
               iconPosition="start"
               label="Tabungan"
               sx={{ gap: 0.5 }}
