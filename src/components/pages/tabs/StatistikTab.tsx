@@ -41,6 +41,7 @@ export default function StatistikTab({
     const [chartPeriod, setChartPeriod] = useState<'7days' | '1month' | '6months'>('7days');
     const [activeChartIndex, setActiveChartIndex] = useState(0);
     const chartScrollRef = useRef<HTMLDivElement>(null);
+    const scrollDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
     const monthNames = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
     const currentMonthLabel = `${monthNames[selectedMonth]} ${selectedYear}`;
@@ -135,12 +136,15 @@ export default function StatistikTab({
     };
 
     const handleChartScroll = () => {
-        if (chartScrollRef.current) {
-            const scrollLeft = chartScrollRef.current.scrollLeft;
-            const cardWidth = chartScrollRef.current.offsetWidth;
-            const newIndex = Math.round(scrollLeft / cardWidth);
-            if (newIndex !== activeChartIndex) setActiveChartIndex(newIndex);
-        }
+        if (scrollDebounceRef.current) clearTimeout(scrollDebounceRef.current);
+        scrollDebounceRef.current = setTimeout(() => {
+            if (chartScrollRef.current) {
+                const scrollLeft = chartScrollRef.current.scrollLeft;
+                const cardWidth = chartScrollRef.current.offsetWidth;
+                const newIndex = Math.round(scrollLeft / cardWidth);
+                if (newIndex !== activeChartIndex) setActiveChartIndex(newIndex);
+            }
+        }, 80);
     };
 
     // Ringkasan pengeluaran per kategori (bulan ini)
@@ -276,16 +280,16 @@ export default function StatistikTab({
                 <IconButton
                     onClick={() => scrollToChart(Math.max(0, activeChartIndex - 1))}
                     disabled={activeChartIndex === 0}
-                    sx={{ position: 'absolute', left: -8, top: '55%', zIndex: 10, bgcolor: 'white', boxShadow: '0 2px 8px rgba(0,0,0,0.1)', '&:hover': { bgcolor: '#f8fafc' }, '&.Mui-disabled': { opacity: 0.3 } }}
+                    sx={{ position: 'absolute', left: 0, top: '55%', zIndex: 10, bgcolor: 'white', boxShadow: '0 2px 8px rgba(0,0,0,0.15)', '&:hover': { bgcolor: '#f8fafc' }, '&.Mui-disabled': { opacity: 0.3 }, width: 32, height: 32 }}
                 >
-                    <Icon icon="mdi:chevron-left" width={24} />
+                    <Icon icon="mdi:chevron-left" width={20} />
                 </IconButton>
                 <IconButton
                     onClick={() => scrollToChart(Math.min(2, activeChartIndex + 1))}
                     disabled={activeChartIndex === 2}
-                    sx={{ position: 'absolute', right: -8, top: '55%', zIndex: 10, bgcolor: 'white', boxShadow: '0 2px 8px rgba(0,0,0,0.1)', '&:hover': { bgcolor: '#f8fafc' }, '&.Mui-disabled': { opacity: 0.3 } }}
+                    sx={{ position: 'absolute', right: 0, top: '55%', zIndex: 10, bgcolor: 'white', boxShadow: '0 2px 8px rgba(0,0,0,0.15)', '&:hover': { bgcolor: '#f8fafc' }, '&.Mui-disabled': { opacity: 0.3 }, width: 32, height: 32 }}
                 >
-                    <Icon icon="mdi:chevron-right" width={24} />
+                    <Icon icon="mdi:chevron-right" width={20} />
                 </IconButton>
 
                 {/* Scrollable Chart Cards */}
@@ -296,7 +300,7 @@ export default function StatistikTab({
                         display: 'flex',
                         overflowX: 'auto',
                         scrollSnapType: 'x mandatory',
-                        scrollBehavior: 'smooth',
+                        WebkitOverflowScrolling: 'touch',
                         '&::-webkit-scrollbar': { display: 'none' },
                         msOverflowStyle: 'none',
                         scrollbarWidth: 'none',
@@ -310,9 +314,7 @@ export default function StatistikTab({
                             sx={{
                                 minWidth: '100%',
                                 scrollSnapAlign: 'start',
-                                transition: 'transform 0.3s ease, opacity 0.3s ease',
-                                transform: activeChartIndex === idx ? 'scale(1)' : 'scale(0.95)',
-                                opacity: activeChartIndex === idx ? 1 : 0.7,
+                                flexShrink: 0,
                             }}
                         >
                             <CardContent sx={{ p: 2.5 }}>
