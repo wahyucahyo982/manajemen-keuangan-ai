@@ -1,6 +1,6 @@
 ﻿'use client';
 
-import { useState, useMemo, useRef, useCallback } from 'react';
+import { useState, useMemo, useRef, useCallback, useEffect } from 'react';
 import { Box, Card, CardContent, Typography, Grid, Stack, Chip, Skeleton, Select, MenuItem, FormControl, IconButton } from '@mui/material';
 import { Icon } from '@iconify/react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
@@ -40,7 +40,10 @@ export default function StatistikTab({
 }: StatistikTabProps) {
     const [chartPeriod, setChartPeriod] = useState<'7days' | '1month' | '6months'>('7days');
     const [activeChartIndex, setActiveChartIndex] = useState(0);
+    const carouselRef = useRef<HTMLDivElement>(null);
     const touchStartXRef = useRef<number | null>(null);
+    const touchStartYRef = useRef<number | null>(null);
+    const isSwiping = useRef(false);
 
     const monthNames = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
     const currentMonthLabel = `${monthNames[selectedMonth]} ${selectedYear}`;
@@ -130,18 +133,51 @@ export default function StatistikTab({
         setActiveChartIndex(index);
     };
 
-    const handleTouchStart = (e: React.TouchEvent) => {
-        touchStartXRef.current = e.touches[0].clientX;
-    };
+    // Non-passive touch listeners attached via useEffect so preventDefault() works
+    useEffect(() => {
+        const el = carouselRef.current;
+        if (!el) return;
 
-    const handleTouchEnd = (e: React.TouchEvent) => {
-        if (touchStartXRef.current === null) return;
-        const deltaX = e.changedTouches[0].clientX - touchStartXRef.current;
-        touchStartXRef.current = null;
-        if (Math.abs(deltaX) < 40) return;
-        if (deltaX < 0) setActiveChartIndex(prev => Math.min(chartConfigs.length - 1, prev + 1));
-        else setActiveChartIndex(prev => Math.max(0, prev - 1));
-    };
+        const onTouchStart = (e: TouchEvent) => {
+            touchStartXRef.current = e.touches[0].clientX;
+            touchStartYRef.current = e.touches[0].clientY;
+            isSwiping.current = false;
+        };
+
+        const onTouchMove = (e: TouchEvent) => {
+            if (touchStartXRef.current === null || touchStartYRef.current === null) return;
+            const deltaX = Math.abs(e.touches[0].clientX - touchStartXRef.current);
+            const deltaY = Math.abs(e.touches[0].clientY - touchStartYRef.current);
+            if (deltaX > deltaY && deltaX > 8) {
+                isSwiping.current = true;
+                e.preventDefault(); // block page scroll + Recharts touch
+            }
+        };
+
+        const onTouchEnd = (e: TouchEvent) => {
+            if (!isSwiping.current || touchStartXRef.current === null) {
+                touchStartXRef.current = null;
+                touchStartYRef.current = null;
+                return;
+            }
+            const deltaX = e.changedTouches[0].clientX - touchStartXRef.current;
+            touchStartXRef.current = null;
+            touchStartYRef.current = null;
+            isSwiping.current = false;
+            if (Math.abs(deltaX) < 40) return;
+            if (deltaX < 0) setActiveChartIndex(prev => Math.min(2, prev + 1));
+            else setActiveChartIndex(prev => Math.max(0, prev - 1));
+        };
+
+        el.addEventListener('touchstart', onTouchStart, { passive: true });
+        el.addEventListener('touchmove', onTouchMove, { passive: false });
+        el.addEventListener('touchend', onTouchEnd, { passive: true });
+        return () => {
+            el.removeEventListener('touchstart', onTouchStart);
+            el.removeEventListener('touchmove', onTouchMove);
+            el.removeEventListener('touchend', onTouchEnd);
+        };
+    }, []);
 
     // Ringkasan pengeluaran per kategori (bulan ini)
     const categoryExpenses = useMemo(() => {
@@ -290,9 +326,8 @@ export default function StatistikTab({
 
                 {/* Swipe Chart Cards */}
                 <Box
-                    sx={{ overflow: 'hidden', width: '100%', userSelect: 'none' }}
-                    onTouchStart={handleTouchStart}
-                    onTouchEnd={handleTouchEnd}
+                    ref={carouselRef}
+                    sx={{ overflow: 'hidden', width: '100%', userSelect: 'none', touchAction: 'pan-y' }}
                 >
                     <Box
                         sx={{
