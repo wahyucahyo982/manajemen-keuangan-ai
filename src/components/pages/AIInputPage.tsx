@@ -306,8 +306,8 @@ export default function AIInputPage() {
             <Stack spacing={2.5}>
               <TextField label="Contoh: Bayar listrik 500ribu dari BCA hari ini" multiline rows={3} fullWidth value={prompt} onChange={(e) => setPrompt(e.target.value)} placeholder="Ketik transaksi Anda..." sx={{ '& .MuiOutlinedInput-root': { bgcolor: '#f8fafc' } }} />
 
-              {/* Voice Note */}
-              <Stack direction="row" spacing={1.5} alignItems="center">
+              {/* Voice Note - hidden sementara */}
+              {/* <Stack direction="row" spacing={1.5} alignItems="center">
                 <Button
                   variant={isListening ? 'contained' : 'outlined'}
                   onClick={isListening ? handleVoiceStop : handleVoiceStart}
@@ -322,7 +322,7 @@ export default function AIInputPage() {
                     <Icon icon="mdi:close" width={18} color="#ef4444" />
                   </IconButton>
                 )}
-              </Stack>
+              </Stack> */}
 
               {/* Image Upload */}
               <Box>
