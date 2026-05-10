@@ -1,7 +1,7 @@
 ﻿'use client';
 
 import { useState, useMemo, useRef, useCallback, useEffect } from 'react';
-import { Box, Card, CardContent, Typography, Grid, Stack, Chip, Skeleton, Select, MenuItem, FormControl, IconButton } from '@mui/material';
+import { Box, Card, CardContent, Typography, Grid, Stack, Chip, Skeleton, Select, MenuItem, FormControl, IconButton, Fade } from '@mui/material';
 import { Icon } from '@iconify/react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
@@ -327,18 +327,11 @@ export default function StatistikTab({
                 {/* Swipe Chart Cards */}
                 <Box
                     ref={carouselRef}
-                    sx={{ overflow: 'hidden', width: '100%', userSelect: 'none', touchAction: 'pan-y' }}
+                    sx={{ width: '100%', userSelect: 'none', touchAction: 'pan-y' }}
                 >
-                    <Box
-                        sx={{
-                            display: 'flex',
-                            transition: 'transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
-                            transform: `translateX(-${activeChartIndex * 100}%)`,
-                            willChange: 'transform',
-                        }}
-                    >
-                        {chartConfigs.map((config) => (
-                            <Box key={config.title} sx={{ minWidth: '100%', flexShrink: 0 }}>
+                    {chartConfigs.map((config, idx) => (
+                        <Fade key={config.title} in={activeChartIndex === idx} timeout={250} unmountOnExit mountOnEnter>
+                            <Box sx={{ display: activeChartIndex === idx ? 'block' : 'none' }}>
                                 <Card elevation={0}>
                                     <CardContent sx={{ p: 2.5 }}>
                                         <Stack direction="row" alignItems="center" spacing={1} mb={2}>
@@ -365,8 +358,8 @@ export default function StatistikTab({
                                     </CardContent>
                                 </Card>
                             </Box>
-                        ))}
-                    </Box>
+                        </Fade>
+                    ))}
                 </Box>
 
                 {/* Dots Indicator */}
