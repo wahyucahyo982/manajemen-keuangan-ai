@@ -40,8 +40,7 @@ export default function StatistikTab({
 }: StatistikTabProps) {
     const [chartPeriod, setChartPeriod] = useState<'7days' | '1month' | '6months'>('7days');
     const [activeChartIndex, setActiveChartIndex] = useState(0);
-    const chartScrollRef = useRef<HTMLDivElement>(null);
-    const scrollDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+    const touchStartXRef = useRef<number | null>(null);
 
     const monthNames = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
     const currentMonthLabel = `${monthNames[selectedMonth]} ${selectedYear}`;
@@ -128,23 +127,20 @@ export default function StatistikTab({
     ];
 
     const scrollToChart = (index: number) => {
-        if (chartScrollRef.current) {
-            const cardWidth = chartScrollRef.current.offsetWidth;
-            chartScrollRef.current.scrollTo({ left: index * cardWidth, behavior: 'smooth' });
-            setActiveChartIndex(index);
-        }
+        setActiveChartIndex(index);
     };
 
-    const handleChartScroll = () => {
-        if (scrollDebounceRef.current) clearTimeout(scrollDebounceRef.current);
-        scrollDebounceRef.current = setTimeout(() => {
-            if (chartScrollRef.current) {
-                const scrollLeft = chartScrollRef.current.scrollLeft;
-                const cardWidth = chartScrollRef.current.offsetWidth;
-                const newIndex = Math.round(scrollLeft / cardWidth);
-                if (newIndex !== activeChartIndex) setActiveChartIndex(newIndex);
-            }
-        }, 80);
+    const handleTouchStart = (e: React.TouchEvent) => {
+        touchStartXRef.current = e.touches[0].clientX;
+    };
+
+    const handleTouchEnd = (e: React.TouchEvent) => {
+        if (touchStartXRef.current === null) return;
+        const deltaX = e.changedTouches[0].clientX - touchStartXRef.current;
+        touchStartXRef.current = null;
+        if (Math.abs(deltaX) < 40) return;
+        if (deltaX < 0) setActiveChartIndex(prev => Math.min(chartConfigs.length - 1, prev + 1));
+        else setActiveChartIndex(prev => Math.max(0, prev - 1));
     };
 
     // Ringkasan pengeluaran per kategori (bulan ini)
@@ -292,56 +288,50 @@ export default function StatistikTab({
                     <Icon icon="mdi:chevron-right" width={20} />
                 </IconButton>
 
-                {/* Scrollable Chart Cards */}
+                {/* Swipe Chart Cards */}
                 <Box
-                    ref={chartScrollRef}
-                    onScroll={handleChartScroll}
-                    sx={{
-                        display: 'flex',
-                        overflowX: 'auto',
-                        scrollSnapType: 'x mandatory',
-                        WebkitOverflowScrolling: 'touch',
-                        '&::-webkit-scrollbar': { display: 'none' },
-                        msOverflowStyle: 'none',
-                        scrollbarWidth: 'none',
-                        mx: -2, px: 2,
-                    }}
+                    sx={{ overflow: 'hidden', width: '100%', userSelect: 'none' }}
+                    onTouchStart={handleTouchStart}
+                    onTouchEnd={handleTouchEnd}
                 >
-                    {chartConfigs.map((config, idx) => (
-                        <Card
-                            key={config.title}
-                            elevation={0}
-                            sx={{
-                                minWidth: '100%',
-                                scrollSnapAlign: 'start',
-                                flexShrink: 0,
-                            }}
-                        >
-                            <CardContent sx={{ p: 2.5 }}>
-                                <Stack direction="row" alignItems="center" spacing={1} mb={2}>
-                                    <Box sx={{ width: 8, height: 8, borderRadius: '50%', bgcolor: config.color }} />
-                                    <Typography variant="subtitle1" fontWeight={600}>{config.title}</Typography>
-                                </Stack>
-                                <Box sx={{ width: '100%', height: 200 }}>
-                                    <ResponsiveContainer width="100%" height="100%">
-                                        <AreaChart data={config.data} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                                            <defs>
-                                                <linearGradient id={config.gradientId} x1="0" y1="0" x2="0" y2="1">
-                                                    <stop offset="5%" stopColor={config.color} stopOpacity={0.3} />
-                                                    <stop offset="95%" stopColor={config.color} stopOpacity={0} />
-                                                </linearGradient>
-                                            </defs>
-                                            <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" vertical={false} />
-                                            <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{ fill: '#64748b', fontSize: 11 }} />
-                                            <YAxis axisLine={false} tickLine={false} tick={{ fill: '#64748b', fontSize: 10 }} tickFormatter={(v) => `${(v / 1000)}k`} />
-                                            <Tooltip content={<CustomTooltip />} />
-                                            <Area type="monotone" dataKey={config.dataKey} name={config.title} stroke={config.color} strokeWidth={2.5} fillOpacity={1} fill={`url(#${config.gradientId})`} dot={{ fill: config.color, strokeWidth: 2, r: 3 }} activeDot={{ r: 5, fill: config.color, stroke: '#fff', strokeWidth: 2 }} />
-                                        </AreaChart>
-                                    </ResponsiveContainer>
-                                </Box>
-                            </CardContent>
-                        </Card>
-                    ))}
+                    <Box
+                        sx={{
+                            display: 'flex',
+                            transition: 'transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+                            transform: `translateX(-${activeChartIndex * 100}%)`,
+                            willChange: 'transform',
+                        }}
+                    >
+                        {chartConfigs.map((config) => (
+                            <Box key={config.title} sx={{ minWidth: '100%', flexShrink: 0 }}>
+                                <Card elevation={0}>
+                                    <CardContent sx={{ p: 2.5 }}>
+                                        <Stack direction="row" alignItems="center" spacing={1} mb={2}>
+                                            <Box sx={{ width: 8, height: 8, borderRadius: '50%', bgcolor: config.color }} />
+                                            <Typography variant="subtitle1" fontWeight={600}>{config.title}</Typography>
+                                        </Stack>
+                                        <Box sx={{ width: '100%', height: 200 }}>
+                                            <ResponsiveContainer width="100%" height="100%">
+                                                <AreaChart data={config.data} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                                                    <defs>
+                                                        <linearGradient id={config.gradientId} x1="0" y1="0" x2="0" y2="1">
+                                                            <stop offset="5%" stopColor={config.color} stopOpacity={0.3} />
+                                                            <stop offset="95%" stopColor={config.color} stopOpacity={0} />
+                                                        </linearGradient>
+                                                    </defs>
+                                                    <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" vertical={false} />
+                                                    <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{ fill: '#64748b', fontSize: 11 }} />
+                                                    <YAxis axisLine={false} tickLine={false} tick={{ fill: '#64748b', fontSize: 10 }} tickFormatter={(v) => `${(v / 1000)}k`} />
+                                                    <Tooltip content={<CustomTooltip />} />
+                                                    <Area type="monotone" dataKey={config.dataKey} name={config.title} stroke={config.color} strokeWidth={2.5} fillOpacity={1} fill={`url(#${config.gradientId})`} dot={{ fill: config.color, strokeWidth: 2, r: 3 }} activeDot={{ r: 5, fill: config.color, stroke: '#fff', strokeWidth: 2 }} />
+                                                </AreaChart>
+                                            </ResponsiveContainer>
+                                        </Box>
+                                    </CardContent>
+                                </Card>
+                            </Box>
+                        ))}
+                    </Box>
                 </Box>
 
                 {/* Dots Indicator */}
