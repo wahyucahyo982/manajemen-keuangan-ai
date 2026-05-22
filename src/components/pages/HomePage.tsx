@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useState, useEffect, useMemo, memo, useCallback } from 'react';
 import { Box, Card, CardContent, Typography, Stack, Avatar, Menu, MenuItem, Divider, ListItemIcon, ListItemText, IconButton, Dialog, DialogTitle, DialogContent, DialogActions, Button, TextField, Switch, CircularProgress, Tabs, Tab } from '@mui/material';
@@ -326,24 +326,29 @@ export default function HomePage({ onNavigate }: HomePageProps) {
               },
             }}
           >
+            {/* 
             <Tab
               icon={<Icon icon="mdi:wallet-bifold-outline" width={22} />}
               iconPosition="start"
               label="Budgeting"
               sx={{ gap: 0.5 }}
             />
+            */}
             <Tab
               icon={<Icon icon="mdi:chart-line" width={22} />}
               iconPosition="start"
               label="Statistik"
               sx={{ gap: 0.5 }}
+              value={1}
             />
+            {/* 
             <Tab
               icon={<Icon icon="mdi:piggy-bank-outline" width={22} />}
               iconPosition="start"
               label="Tabungan"
               sx={{ gap: 0.5 }}
             />
+            */}
           </Tabs>
         </Card>
       </Box>
@@ -423,6 +428,7 @@ export default function HomePage({ onNavigate }: HomePageProps) {
       />
 
       {/* Tab Content */}
+      {/* 
       {activeTab === 0 && (
         <BudgetingTab
           isLoading={isLoading}
@@ -434,6 +440,7 @@ export default function HomePage({ onNavigate }: HomePageProps) {
           totalIncome={totalIncome}
         />
       )}
+      */}
       {activeTab === 1 && (
         <StatistikTab
           isLoading={isLoading}
@@ -445,6 +452,7 @@ export default function HomePage({ onNavigate }: HomePageProps) {
           categoriesWithBudget={categoriesWithBudget}
         />
       )}
+      {/* 
       {activeTab === 2 && (
         <TabunganTab
           isLoading={isLoading}
@@ -466,6 +474,7 @@ export default function HomePage({ onNavigate }: HomePageProps) {
           }}
         />
       )}
+      */}
     </Box>
   );
 }
